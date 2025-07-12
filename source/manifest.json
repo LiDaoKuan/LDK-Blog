@@ -1,0 +1,132 @@
+{
+  "name": "string",
+  "short_name": "LDK",
+  "theme_color": "#49b1f5",
+  "background_color": "#49b1f5",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "imag/avatar.png",
+      "sizes": "82x82",
+      "type": "image/png"
+    },
+    {
+      "src": "background/001.webp",
+      "sizes": "1920x1052",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/002.webp",
+      "sizes": "1920x1080",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/003.webp",
+      "sizes": "1918x1080",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/004.webp",
+      "sizes": "1728x1080",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/005.webp",
+      "sizes": "1920x1080",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/006.webp",
+      "sizes": "1920x1076",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/007.webp",
+      "sizes": "1920x1035",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/008.webp",
+      "sizes": "1920x1080",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/009.webp",
+      "sizes": "1920x1080",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/010.webp",
+      "sizes": "1920x1080",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/011.webp",
+      "sizes": "1920x1080",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/012.webp",
+      "sizes": "1920x1080",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/013.webp",
+      "sizes": "1920x1080",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/014.webp",
+      "sizes": "1920x1080",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/015.webp",
+      "sizes": "1920x1076",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/016.webp",
+      "sizes": "1920x1074",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/017.webp",
+      "sizes": "1920x1080",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/018.webp",
+      "sizes": "1920x960",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/019.webp",
+      "sizes": "1920x1080",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/020.webp",
+      "sizes": "1920x1080",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/021.webp",
+      "sizes": "1920x1080",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/022.webp",
+      "sizes": "1920x1080",
+      "type": "image/webp"
+    },
+    {
+      "src": "background/023.webp",
+      "sizes": "1920x991",
+      "type": "image/webp"
+    }
+  ],
+  "splash_pages": null
+}
