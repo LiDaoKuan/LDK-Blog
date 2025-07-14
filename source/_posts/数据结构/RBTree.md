@@ -22,7 +22,7 @@ categories: 数据结构
 
 下图为一个合法的红黑树：
 
-<img src="image/image-20250623201450979.png" alt="image-20250623201450979" style="zoom:50%;" />
+<img src="./image/image-20250623201450979.png" alt="image-20250623201450979" style="zoom:50%;" />
 
 ##### 实现(C++)
 

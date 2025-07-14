@@ -99,7 +99,7 @@ footer_img: transparent
 
 # Website Background
 # Can set it to color or image url
-background: /background/005.webp
+background: /background/002.webp
 
 
 cover:
@@ -113,6 +113,7 @@ cover:
     - /background/002.webp
     - /background/003.webp
     - /background/004.webp
+    - /background/005.webp
     - /background/006.webp
     - /background/007.webp
     - /background/008.webp
