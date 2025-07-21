@@ -35,10 +35,10 @@ categories: 数据结构
 对于用数组存储的完全二叉树，有以下特点：（**下标从0开始**）（根节点层数为1）
 
 1. 如果一个节点在数组中下标为`i`，则它在树中的层数为<mark> $\left\lfloor log_2{(i+1)} \right\rfloor$ </mark>（向下取整），它的左子节点在数组中对应的下标为：$2i+1$（如果存在），右子节点在数组中对应的下标为$2i+2$（如果存在）。
-2. 如果完全二叉树总共有`n`个节点，那么树高：<mark> $h=\left \lfloor log_2{n} \right \rfloor+1$ </mark>（向下取整再+1。注意：**不能直接向上取整，两者不相等**）。
+2. 如果完全二叉树总共有`n (n>0)`个节点，那么树高：<mark> $h=\left \lfloor log_2{n} \right \rfloor+1$ </mark>（或者<mark>$\left\lceil log_2{(n+1)} \right\rceil$</mark>）。
 3. 如果完全二叉树树高`h`，那么这个完全二叉树最多拥有$2^h-1$个节点。
 
-如果**下标从1开始**，那么第一条中，左子节点对应下标改为：<mark>$2i$</mark>，右子节点对应下标改为：<mark>$2i+1$</mark>。（相比于下标从0开始，直接-1）
+如果**根节点下标从1开始**，那么第一条中，左子节点对应下标改为：<mark>$2i$</mark>，右子节点对应下标改为：<mark>$2i+1$</mark>。（相比于下标从0开始，直接-1）
 
 #### 用数组构建完全二叉树
 
@@ -48,7 +48,7 @@ categories: 数据结构
 
 C++实现：
 
-```cpp
+```c++
 #include <iostream>
 #include <queue>
 /*
@@ -57,127 +57,112 @@ C++实现：
  * 2. 队列
  */
 
-struct Node
-{
-	int data;
-	Node *left;
-	Node *right;
-	Node() {}
-	Node(int data, Node *left, Node *right)
-	{
-		this->data = data;
-		this->left = left;
-		this->right = right;
-	}
+struct Node {
+    int data;
+    Node *left;
+    Node *right;
+    Node() {
+    }
+    Node(int data, Node *left, Node *right) {
+        this->data = data;
+        this->left = left;
+        this->right = right;
+    }
 
-	virtual void test()
-	{
-		std::cout << "test" << std::endl;
-	}
+    virtual void test() {
+        std::cout << "test" << std::endl;
+    }
 };
 
-void inorderPrintTree(Node *root)
-{
-	if (root == nullptr)
-	{
-		return;
-	}
-	inorderPrintTree(root->left);
-	std::cout << root->data << " ";
-	inorderPrintTree(root->right);
+void inorderPrintTree(Node *root) {
+    if (root == nullptr) {
+        return;
+    }
+    inorderPrintTree(root->left);
+    std::cout << root->data << " ";
+    inorderPrintTree(root->right);
 }
 
-void destroyTree(Node *root)
-{
-	if (root == nullptr)
-	{
-		return;
-	}
-	if (root->left != nullptr)
-	{
-		destroyTree(root->left);
-	}
-	if (root->right != nullptr)
-	{
-		destroyTree(root->right);
-	}
-	std::cout << "destroyed node: " << root->data << std::endl;
-	delete root;
+void destroyTree(Node *root) {
+    if (root == nullptr) {
+        return;
+    }
+    if (root->left != nullptr) {
+        destroyTree(root->left);
+    }
+    if (root->right != nullptr) {
+        destroyTree(root->right);
+    }
+    std::cout << "destroyed node: " << root->data << std::endl;
+    delete root;
 }
 
 /**
  * 非递归构建：使用栈
  */
-void unRecursion()
-{
-	int arr[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-	int size = sizeof(arr) / sizeof(arr[0]);
+void unRecursion() {
+    int arr[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    int size = sizeof(arr) / sizeof(arr[0]);
 
-	Node *root = new Node(arr[0], nullptr, nullptr);
-	Node *point = root;
+    Node *root = new Node(arr[0], nullptr, nullptr);
+    Node *point = root;
 
-	std::queue<Node *> que;
-	que.push(point);
-	int index = 1;
+    std::queue<Node *> que;
+    que.push(point);
+    int index = 1;
 
-	// 构建完全二叉树
-	while (index < size)
-	{
-		point = que.front();
-		que.pop();
+    // 构建完全二叉树
+    while (index < size) {
+        point = que.front();
+        que.pop();
 
-		if (index < size)
-		{
-			point->left = new Node(arr[index++], nullptr, nullptr);
-			que.push(point->left);
-		}
-		if (index < size)
-		{
-			point->right = new Node(arr[index++], nullptr, nullptr);
-			que.push(point->right);
-		}
-	}
+        if (index < size) {
+            point->left = new Node(arr[index++], nullptr, nullptr);
+            que.push(point->left);
+        }
+        if (index < size) {
+            point->right = new Node(arr[index++], nullptr, nullptr);
+            que.push(point->right);
+        }
+    }
 
-	// 中序遍历
-	inorderPrintTree(root);
+    // 中序遍历
+    inorderPrintTree(root);
 
-	destroyTree(root);
+    destroyTree(root);
 }
 
 /**
  * 递归构建
  */
-void recursion(int arr[], int i, int n, Node *&root)
-{
-	if (i < n)
-	{
-		root = new Node(arr[i], nullptr, nullptr);
-		recursion(arr, i * 2 + 1, n, root->left);
-		recursion(arr, i * 2 + 2, n, root->right);
-		return;
-	}
-	root = nullptr;
+void recursion(int arr[], int i, int n, Node *&root) {
+    if (i < n) {
+        root = new Node(arr[i], nullptr, nullptr);
+        recursion(arr, i * 2 + 1, n, root->left);
+        recursion(arr, i * 2 + 2, n, root->right);
+        return;
+    }
+    root = nullptr;
 }
 
-int main()
-{
-	// unRecursion();				// 非递归
+int main() {
+    // unRecursion();				// 非递归
 
-	/*
-	 * 递归
-	*/
-	int arr[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-	int size = sizeof(arr) / sizeof(arr[0]);
+    /*
+     * 递归
+     */
+    int arr[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    int size = sizeof(arr) / sizeof(arr[0]);
 
-	Node *root = nullptr;
+    Node *root = nullptr;
 
-	recursion(arr, 0, size, root);
+    recursion(arr, 0, size, root);
 
-	inorderPrintTree(root);
+    inorderPrintTree(root);
 
-	destroyTree(root);
+    destroyTree(root);
 
-	return 0;
+    return 0;
 }
 ```
 
