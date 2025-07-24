@@ -2,6 +2,7 @@
 title: 标准IO
 date: 2025-07-06
 tags: [Linux, C]
+categories: 系统编程
 ---
 
 > 详细信息请参考man手册
