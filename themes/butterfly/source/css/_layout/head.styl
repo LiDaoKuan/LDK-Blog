@@ -213,18 +213,17 @@
 
 // for not top_img
 #post
-  backdrop-filter: blur(10px); /* 模糊程度 */
   -webkit-backdrop-filter: blur(10px); /* 兼容 Safari */
   background-color: rgba(255, 255, 255, 0.5); /* 半透明背景 */
   color: #999
 
   pre, blockquote, .highlight
-    backdrop-filter: blur(4px)
     border-radius: 8px
     padding-top: 15px
     padding-bottom: 15px
     [data-theme="dark"] &
-      background-color: rgba(50, 50, 50, 0.8) !important  // 深色模式调整
+      background-color: rgba(26, 18, 18, 0.85) !important  // 深色模式调整
+
 
   & > #post-info
     margin-bottom: 30px
@@ -240,6 +239,7 @@
     #post-meta,
     #post-meta a
       color: #78818a
+
 
 #post-info
   .post-title

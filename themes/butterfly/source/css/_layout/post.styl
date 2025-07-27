@@ -273,7 +273,11 @@ beautify()
   p, li, ul, ol, blockquote, .table-wrap
     font-weight: 500 !important  // 适度加粗（400正常，700最粗）
     color: black !important  // 改变文字颜色（可选）
-    
+  
+  .table-wrap
+    table
+      background-color: rgba(76, 138, 171, 0.85)
+      color: white
   
   /* 目录标题放大并加粗 */
   #post-title, #toc-title
@@ -323,16 +327,15 @@ html[data-theme="dark"] #article-container
     
     /* 代码块优化 */
     pre, code
-      background-color: rgba(30, 35, 40, 0.85) !important;
+      background-color: rgba(26, 18, 18, 0.85);
       color: #f0f0f0 !important;
-      border: 1px solid #444;
 
     code
       color: #35dc06ff !important;
     
     /* 表格优化 */
     table
-      background-color: rgba(40, 45, 50, 0.9) !important;
+      background-color: rgba(26, 18, 18, 0.85);
       border-color: #555 !important;
       th, td
         border-color: #555 !important;

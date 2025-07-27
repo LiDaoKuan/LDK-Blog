@@ -1,7 +1,7 @@
 ---
 title: 完全二叉树
 date: 2025-07-09
-update: 2025-07-13
+updated: 2025-07-13
 tags: [数据结构, 二叉树, C++, 树, 完全N叉树]
 categories: 数据结构
 ---

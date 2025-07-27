@@ -1,7 +1,7 @@
 ---
 title: 满二叉树
 date: 2025-07-13
-update: 2025-07-14
+updated: 2025-07-14
 tags: [数据结构, 二叉树, C++, 树]
 categories: 数据结构
 ---

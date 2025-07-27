@@ -1,7 +1,7 @@
 ---
 title: 平衡二叉树(AVL)
-date: 2025-07-16
-update: 2025-07-16
+date: 2025-07-12
+updated: 2025-07-16
 tags: [数据结构, 二叉树, C++, 树]
 categories: 数据结构
 ---
