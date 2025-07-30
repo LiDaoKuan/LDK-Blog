@@ -118,8 +118,6 @@ categories: 数据结构
   
         ![兄黑反红子-兄变父色-父变黑色-外加双旋](https://image-1258881983.cos.ap-beijing.myqcloud.com/imageimage-20250729193004686.png)
   
-        
-  
       - 并且**兄弟节点没有红色子节点**。**父亲**节点为<font style="background: white" color="RED">红色</font>：
   
         > 兄弟节点变红，父亲节点变黑。
@@ -139,14 +137,16 @@ categories: 数据结构
       > 兄弟节点变黑色，父亲节点变红色。然后左旋或者右旋父亲节点。（将父亲节点下移，兄弟节点上移）
       
       ![兄红父黑-先变色，再左旋或右旋](https://image-1258881983.cos.ap-beijing.myqcloud.com/imageimage-20250729192538724.png)
-  
+    
   - **被删除节点为红色**：
   
     最简单的情况。直接删除该节点。（因为没有左右孩子，并且不形象红黑树基本性质，所以可以直接删除，不做任何额外操作）
 
 #### 查询
 
+查询思路与二叉搜索树相同。
 
+#### C++实现
 
 ```cpp
 #include <iostream>
