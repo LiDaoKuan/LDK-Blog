@@ -1,0 +1,49 @@
+
+#nav .menus_items {
+    position: absolute;
+    top: 16px;
+    width: fit-content;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#nav .menus_items .menus_item:hover .menus_item_child{
+  display: flex;
+}
+
+/* 这里的2是代表导航栏的第二个元素，即有子菜单的元素，可以按自己需求修改 */
+.menus_items .menus_item:nth-child(2) .menus_item_child {
+    left: -65px;
+}
+
+/* 放大导航菜单字体和图标 */
+.menus_items {
+  transform: scale(1.15);
+  transform-origin: left center;
+  
+  .menus_item {
+    a.site-page {
+      font-size: 1.1rem !important;
+      
+      i.fas {
+        font-size: 1.2rem !important;
+        margin-right: 8px !important;
+      }
+      
+      span {
+        transform: translateY(1px);
+      }
+    }
+  }
+}
+
+/* 调整整体导航栏布局 */
+#nav {
+  height: auto !important;
+  padding: 15px 0 !important;
+}
+
+/* 修复放大后位置偏移问题 */
+#blog-info {
+  margin-right: 20px !important;
+}

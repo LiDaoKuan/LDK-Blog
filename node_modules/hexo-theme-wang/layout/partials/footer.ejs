@@ -1,0 +1,38 @@
+<footer>
+    <span id="busuanzi_container_site_pv" style="display: inline;"></span>
+    <span>👁<span id="busuanzi_value_site_pv"></span></span>
+    <div class="padding border border-sub border-dotted fadein-right">
+        <span style="color:aliceblue">👤<span id="busuanzi_value_site_uv"></span></span>
+    </div>
+    <span>
+        <%- __('PoweredBy').split('Hexo')[0] %><a target="_blank" rel="noopener" href="https://hexo.io" alt="Hexo">
+            <p class="hover-underline night" style="display: inline;">Hexo</p>
+        </a><%- __('PoweredBy').split('Hexo')[1] %>
+        <p style="display: inline; color: red;">❤</p>
+        <%- __('BuiltWith').split('Wang')[0] %><a target="_blank" rel="noopener" href="https://github.com/xingwangzhe/hexo-theme-wang" alt="Wang">
+            <p class="hover-underline night" style="display: inline;">Wang</p>
+        </a><%- __('BuiltWith').split('Wang')[1] %>
+    </span>
+
+    <!-- 带图片的链接 -->
+    <div class="footer-links">
+        <% if (theme.footer_links && theme.footer_links.length > 0) { %>
+            <% theme.footer_links.forEach(function(link) { %>
+                <a href="<%= link.link %>" target="_blank" rel="noopener">
+                    <img src="<%= link.img %>" alt="<%= link.name %>" title="<%= link.name %>">
+                </a>
+            <% }); %>
+        <% } %>
+    </div>
+
+    <!-- 纯文本链接 -->
+    <div class="footer-text-links">
+        <% if (theme.footer_links_text && theme.footer_links_text.length > 0) { %>
+            <% theme.footer_links_text.forEach(function(link) { %>
+                <a href="<%= link.link %>" target="_blank" rel="noopener">
+                    <%= link.name %>
+                </a>
+            <% }); %>
+        <% } %>
+    </div>
+</footer>
