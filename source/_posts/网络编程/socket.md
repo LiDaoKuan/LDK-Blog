@@ -241,7 +241,7 @@ public:
         msg.clear();        // 清空容器
         msg.resize(maxLen);     // 设置容器大小
         /*
-         * 如果直接操作string对象的内存，需要保证亮点：
+         * 如果直接操作string对象的内存，需要保证两点：
          *      1. 不能越界
          *      2. 操作后需要手动设置string的大小（resize函数）。(因为直接操作string对象的内存后，string对象自动管理内存的功能就会失效)
          *
