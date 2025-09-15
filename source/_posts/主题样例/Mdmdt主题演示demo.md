@@ -3,7 +3,7 @@ title: Markdown语法测试文章
 date: 2025-07-06
 description: Markdown渲染效果测试
 categories: 测试
-tags: [测试]
+tags: 测试
 ---
 
 ## 关于Mdmdt主题
@@ -28,10 +28,23 @@ This is a text content style and the following are the effects of different text
 直接使用公式：
 
 $$
+\alpha=
+\begin{pmatrix}
+a & b & c \\
+d & e & f \\
+g & h & i 
+\end{pmatrix} 
+$$
+
+$$
+x = a + b
+$$
+
+$$
 \begin{aligned} I &=\int_0^{ct}\frac{r}{\sqrt{c^2t^2 -r^2}}\int_0^{2\pi} m^2(m+n) d\theta dr\&=\int_0^{ct}\frac{r}{\sqrt{c^2t^2 -r^2}}\end{aligned}
 $$
 
-$$代入公式得到：$$  $$u(t,x,y) = (3x+y) c^2 t^2 + x^2(x+y)$$
+$代入公式得到：$---$u(t,x,y) = (3x+y) c^2 t^2 + x^2(x+y)$
 
 $$
 u(t,x,y) = \frac{1}{2\pi c} \frac{\partial}{\partial t} \iint\limits_{r<ct} \frac{m^2(m+n)}{\sqrt{c^2t^2 -r^2 }}dmdn

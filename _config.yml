@@ -8,7 +8,7 @@ subtitle: "个人博客"
 description: "不管夜晚多么黑暗，黎明总是会到来。"
 keywords: "博客,个人博客,技术博客,ldk,ldkblog,ldkblog.com,后端,IT"
 author: LDK
-language: zh-CH
+language: zh-CN
 timezone: ""
 
 # URL
@@ -51,12 +51,13 @@ highlight:
   tab_replace: ""
   wrap: true
   hljs: false
-  exclude_languages: ['mermaid']
+  exclude_languages: ["mermaid"]
 prismjs:
+  enable: false
   preprocess: true
   line_number: true
   tab_replace: ""
-  exclude_languages: ['mermaid']
+  exclude_languages: ["mermaid"]
 
 # Home page setting
 # path: Root path for your blogs index page. (default = '')
@@ -101,7 +102,7 @@ ignore:
 ## Themes: https://hexo.io/themes/
 # theme: landscape
 
-theme: butterfly
+theme: keep
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
@@ -111,37 +112,9 @@ deploy:
   branch: main
 
 markdown:
-  markdown:
-  preset: 'default'
-  render:
-    html: true
-    xhtmlOut: false
-    langPrefix: 'language-'
-    breaks: true
-    linkify: true
-    typographer: true
-    quotes: '“”‘’'
-  enable_rules:
-  disable_rules:
   plugins:
-    - 'markdown-it-footnote'
-    - 'markdown-it-ins'
-    - 'markdown-it-mark'
-    - 'markdown-it-sub'
-    - 'markdown-it-sup'
-  images:
-    lazyload: false
-    prepend_root: false
-    post_asset: true
-    
+    - name: markdown-it-latex2img
+      options:
+        style: 'filter: opacity(90%);transform:scale(0.85);text-align:center;'
 
-pandoc:
-  args:
-    - '-f'
-    - 'commonmark_x'
-    - '-t'
-    - 'html'
-    - '--mathjax'
-  extensions:
-    - '-implicit_figures'
-
+all_minifier: true  # 资源压缩

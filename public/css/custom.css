@@ -1,7 +1,1 @@
-/* 响应式图片设置 */
-@media (max-width: 768px) {
-  .post-bg {
-    max-width: 100vw !important;
-    height: auto !important;
-  }
-}
+:root{--base-font-family:STKaiti;--base-font-family:'FiraCode-Regular'}:root{--first-screen-icon-color-light:#CC6600;--first-screen-icon-color-light:#CC9966}:root{--first-screen-font-color-light:#FFFFFF;--first-screen-font-color-dark:#0099CC}@font-face{font-family:FiraCode-Regular;src:url('../font/FiraCode-Regular.ttf') format('truetype');font-weight:400;font-style:normal}.code pre{font-family:FiraCode-Regular,Monaco,Consolas,"Courier New",monospace}

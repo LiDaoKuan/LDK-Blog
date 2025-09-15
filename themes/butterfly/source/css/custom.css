@@ -1,7 +1,0 @@
-/* 响应式图片设置 */
-@media (max-width: 768px) {
-  .post-bg {
-    max-width: 100vw !important;
-    height: auto !important;
-  }
-}
