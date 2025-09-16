@@ -1,5 +1,7 @@
 ---
 title: STL-set
+tags: [Cpp, STL]
+categories: Cpp
 date: 2025-07-06
 description: C++ 四种set
 ---

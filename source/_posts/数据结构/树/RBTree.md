@@ -2,7 +2,7 @@
 title: 红黑树
 date: 2025-07-14
 updated: 2025-07-15
-tags: [数据结构, 红黑树, 二叉树, C++]
+tags: [数据结构, 红黑树, 二叉树, Cpp]
 categories: 数据结构
 ---
 

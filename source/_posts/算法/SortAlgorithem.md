@@ -1,7 +1,7 @@
 ---
 title: 排序算法
 date: 2025-07-10
-tags: [算法, C++, 排序]
+tags: [算法, Cpp, 排序]
 categories: 算法
 ---
 

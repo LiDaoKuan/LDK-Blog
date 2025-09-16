@@ -2,7 +2,7 @@
 title: C++ string分割
 date: 2025-07-06
 categories: 实用代码段
-tags: [C++, string, 实用代码]
+tags: [Cpp, string, 实用代码]
 ---
 
 ### string分割

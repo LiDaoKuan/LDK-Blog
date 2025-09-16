@@ -2,7 +2,7 @@
 title: socket编程
 date: 2025-07-06
 categories: 网络编程
-tags: [socket, C++]
+tags: [socket, Cpp]
 ---
 
 ### 基本函数和结构体
