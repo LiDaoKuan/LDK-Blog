@@ -101,7 +101,7 @@ scroll:
 # ---------------------------------------------------------------------------------------
 home:
   # Website announcement in home page
-  announcement: 本博客因为服务端部署在netlify, 所以可能会出现部分图片加载不出来的情况。如有必要请科学上网！
+  announcement: 本博客因为部署在netlify, 所以可能会出现部分图片加载不出来的情况。如有必要请科学上网！
 
   # Show category in home page post block
   category: true           # Option values: true | false
