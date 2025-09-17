@@ -7,7 +7,7 @@ categories: 网络编程
 
 ### epoll
 
-epoll是Linux特有的IO复用函数，关于epoll的原理，参见：[Linux的IO多路复用](./Linux的IO多路复用)
+epoll是Linux特有的IO复用函数，关于epoll的原理，参见：[Linux的IO多路复用](../Linux的IO多路复用)
 
 ### LT模式
 
