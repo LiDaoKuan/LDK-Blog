@@ -13,7 +13,7 @@ epoll是Linux特有的IO复用函数，关于epoll的原理，参见：[Linux的
 
 `epoll`的默认模式，这种情况下`epoll`相当于一个效率较高的`poll`。
 
-对于采用`LT`工作模式的文件描述符，当`epoll_wait`检测到其上有事件发生并且将此事件通知给应用程序后，应用程序还可以<mark>不立即</mark>处理该事件。这样，当应用程序下一次调用`epoll_wait`时，`epoll_wait`还会再次同志应用程序，直到该事件被处理。
+对于采用`LT`工作模式的文件描述符，当`epoll_wait`检测到其上有事件发生并且将此事件通知给应用程序后，应用程序还可以<mark>不立即</mark>处理该事件。这样，当应用程序下一次调用`epoll_wait`时，`epoll_wait`还会再次通知应用程序，直到该事件被处理。
 
 ### ET模式
 
@@ -21,7 +21,11 @@ epoll是Linux特有的IO复用函数，关于epoll的原理，参见：[Linux的
 
 对于采用`ET`模式的文件描述符，当`epoll_wait`检测到其上有事件发生并将此事件通知给应用程序后，应用程序必须立即处理该事件，因为后续的`epoll_wait`调用将不再向应用程序通知这一事件。
 
-可见，`ET`模式和大程度上降低了同一个`epoll`事件被重复触发的次数。
+> 拿读取事件来举例：
+> `LT`模式是：只要该文件描述符上有数据可读，就通知应用程序
+> `ET`模式是：只在<mark>原来没有数据可读，现在到来了新的数据</mark>时，通知应用程序。如果应用程序没有将此次的数据读完，下次epoll_wait将不会通知应用程序。
+
+可见，`ET`模式和大程度上降低了同一个`epoll`事件被重复触发的次数。但是使用`ET`模式需要确保读写完整数据包，否则会导致数据丢失
 
 ### 具体实现
 
@@ -145,6 +149,7 @@ void ET(epoll_event *events, int number, int epollfd, int listenfd) {
                 } else if (ret == 0) {
                     close(sockfd);
                 } else {
+                    /* 数据处理 */
                     printf("get %d bytes of content: %s\n", ret, buf);
                 }
             }
