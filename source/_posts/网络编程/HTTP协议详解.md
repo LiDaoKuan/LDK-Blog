@@ -1,5 +1,5 @@
 ---
-title: Linux的IO多路复用
+title: HTTP协议详解
 date: 2025-10-14
 tags: [HTTP, 网络协议]
 categories: 网络编程
@@ -71,3 +71,4 @@ $HTTP请求报文$ 由<mark>起始行</mark>、<mark>请求头</mark>、<mark>�
 - **状态行**：包含HTTP版本、**状态码**和状态描述。例如 `HTTP/1.1 200 OK`。
 - **响应头**：包含服务器返回的关于响应的附加信息。常见的有：`Content-Type`：响应体的数据类型（如`text/html; charset=utf-8`）。`Content-Length`：响应体的长度。`Set-Cookie`：设置Cookie。
 - **响应体**：服务器返回的实际数据，如网页的`HTML`代码、图片数据等
+
