@@ -7,7 +7,7 @@ tags: [Cpp, string, 实用代码]
 
 ### string分割
 
-#### 方法一：使用`find()`和`substr()`.
+#### 方法一：使用`find()`和`substr()`/迭代器.
 
 ##### 用字符分割字符串：
 
@@ -31,6 +31,23 @@ void Stringsplit(const string& str, const char split, vector<string>& res)
         strs = strs.substr(pos + 1, strs.size());
         pos = strs.find(split);
     }
+}
+```
+
+或者
+
+```cpp
+void stringSplit(const std::string &str, const char sep, std::vector<std::string>& res) {
+    std::string::const_iterator cur = str.begin();
+    std::string::const_iterator end = str.end();
+    std::string::const_iterator next = find(cur, end, sep);
+    while (next != end) {
+        res.emplace_back(cur, next);
+        cur = next + 1;
+        next = std::find(cur, end, sep);
+    }
+    res.emplace_back(cur, next);	// 此时next一定等于end
+    return;
 }
 ```
 
@@ -62,3 +79,4 @@ void Stringsplit(const string& str, const string& splits, vector<string>& res)
 
 #### 方法二：使用`istringstream`.
 
+优点：代码更简洁。缺点：引入了字符串流，性能低于前两种
