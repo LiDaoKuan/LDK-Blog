@@ -19,11 +19,11 @@ date: 2025-07-06
 
 - `shared_lock(mutex_type& m, std::defer_lock_t t)`: 
 
-  创建一个未锁定的 shared_lock，但关联到给定的`mutex_type`。
+  创建一个未锁定的 `shared_lock`，但关联到给定的`mutex_type`。
 
 - `shared_lock(mutex_type& m, std::try_to_lock_t t)`: 
 
-  尝试锁定给定的 mutex_type，如果成功则锁定，否则创建一个未锁定的`shared_lock`。
+  尝试锁定给定的 `mutex_type`，如果成功则锁定，否则创建一个未锁定的`shared_lock`。
 
 - `shared_lock(mutex_type& m, const std::chrono::time_point<Clock, Duration>& abs_time)`:
 
@@ -31,7 +31,7 @@ date: 2025-07-06
 
 - `shared_lock(mutex_type& m, const std::chrono::duration<Rep, Period>& rel_time)`: 
 
-  尝试在给定的相对时间段内锁定给定的 mutex_type。如果成功则锁定，否则创建一个未锁定的`shared_lock`。
+  尝试在给定的相对时间段内锁定给定的 `mutex_type`。如果成功则锁定，否则创建一个未锁定的`shared_lock`。
 
 - `lock()`: 锁定关联的互斥量（如果尚未锁定）。
 
@@ -43,6 +43,6 @@ date: 2025-07-06
 
 - `unlock()`: 释放锁（如果持有）。
 
-- `owns_lock()`: 检查 shared_lock 是否持有锁。
+- `owns_lock()`: 检查 `shared_lock` 是否持有锁。
 
-- `operator bool()`: 检查 shared_lock 是否持有锁（返回 owns_lock() 的结果）。
+- `operator bool()`: 检查 `shared_lock` 是否持有锁（返回 `owns_lock()` 的结果）。
