@@ -1,5 +1,5 @@
 ---
-title: 引用封装: std::ref和std::cref
+title: std::ref和std::cref
 tags: [Cpp]
 categories: Cpp
 date: 2025-10-06
