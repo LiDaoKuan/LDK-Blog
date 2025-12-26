@@ -8,15 +8,15 @@ description: C++ 四种map
 
 #### map
 
-> 存储 `key-value`，<mark>key唯一</mark>.
+> 存储 `key-value`，<mark>key唯一</mark>（不存在两个相同的key）.
 >
-> 底层：红黑树。红黑树参考：[RBTree](../../数据结构/树/RBTree).
+> 底层：红黑树。红黑树参考：[RBTree](../../../数据结构/树/RBTree).
 >
 > 是否有序：有序（key升序）
 
 #### unordered_map
 
-> 存储`key-value`，==key唯一==
+> 存储`key-value`，<mark>key唯一</mark>（不存在两个相同的key）.
 >
 > 底层：**哈希表**。
 >
@@ -24,7 +24,7 @@ description: C++ 四种map
 
 #### multimap
 
-> 存储`key-value`，==key不唯一==（一个key对应多个value）
+> 存储`key-value`，<mark>key不唯一</mark>（一个key对应多个value）
 >
 > 底层：红黑树。
 >
@@ -32,7 +32,7 @@ description: C++ 四种map
 
 #### unordered_multimap
 
-> 存储`key-vlaue`，==key不唯一==（一个key对应多个value）
+> 存储`key-vlaue`，<mark>key不唯一</mark>（一个key对应多个value）
 >
 > 底层：**哈希表**。
 
@@ -54,3 +54,4 @@ description: C++ 四种map
 |      **内存占用**       |  较高（树节点额外信息）  |        较高        | 较低（但需预留哈希桶空间） |            较低            |
 |  **`operator[]`支持**   |            ✅             |         ❌          |             ✅              |             ❌              |
 |      **适用场景**       |   需有序遍历或范围查询   | 需有序且允许键重复 |     高频查找且无需顺序     | 高频插入/删除且允许键重复  |
+

@@ -150,7 +150,9 @@ categories: 数据结构
 
 本来应该写C++实现的红黑树的，毕竟用`class`封装起来更易用。不巧前几天看到了`linux kernel`风格的红黑树实现，感觉侵入式设计本身也有其优点。所以就抄下来了。
 
-``` c:rbtree.h
+``` c
+// File: rbtree.h
+
 /*
   Red Black Trees
   (C) 1999  Andrea Arcangeli <andrea@suse.de>
@@ -301,7 +303,9 @@ static inline void rb_link_node(struct rb_node *node, struct rb_node *parent, st
 #endif // RBTREE_H
 ```
 
-```c:rbtree.c
+```c
+// File: rbtree.c
+
 #include "rbtree.h"
 #include <bits/posix2_lim.h>
 
