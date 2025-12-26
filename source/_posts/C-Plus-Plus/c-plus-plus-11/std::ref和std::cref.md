@@ -135,6 +135,43 @@ std::thread t1([&] { std::for_each(data1.begin(), data1.end(), std::ref(logger))
 std::thread t2([&] { std::for_each(data2.begin(), data2.end(), std::ref(logger)); });
 ```
 
+##### 4. std::cref的使用场景
+
+```cpp
+void show(const int& x) {
+    std::cout << x << std::endl;
+}
+
+int main() {
+    int val = 10;
+    auto f = std::bind(show, std::cref(val));
+    f();  // 输出 10
+}
+```
+
+### 实现原理
+
+先前说过，`std::ref()`函数的返回值是：`reference_wrapper<_Tp>(__t)`，其本质上是一个指针模拟引用：
+
+```cpp
+template<typename T>
+class reference_wrapper {
+public:
+    explicit reference_wrapper(T& ref) noexcept : ptr(std::addressof(ref)) {}
+    T& get() const noexcept { return *ptr; }
+    operator T&() const noexcept { return *ptr; }
+private:
+    T* ptr;
+};
+```
+
+上述代码是精简过的，删除了源码中的很多函数，但不影响理解原理。
+
+从代码中可以看到，`reference_wrapper`内部的指针指向的就是被包装的对象。这意味着两件事：
+
+- `reference_wrapper` **不会延长原对象的生命周期**。
+- `ref` 和 `cref` 都**只能绑定左值**。绑定右值编译器会报错。
+
 ### 注意
 
 `std::ref`包装函数时是有性能损耗的，参照下面测试程序：

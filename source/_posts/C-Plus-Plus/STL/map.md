@@ -8,9 +8,9 @@ description: C++ 四种map
 
 #### map
 
-> 存储 `key-value`，==key唯一==
+> 存储 `key-value`，<mark>key唯一</mark>.
 >
-> 底层：红黑树。红黑树参考：[RBTree](../../数据结构/RBTree)
+> 底层：红黑树。红黑树参考：[RBTree](../../数据结构/树/RBTree).
 >
 > 是否有序：有序（key升序）
 
