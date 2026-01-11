@@ -30,7 +30,16 @@ noticeOutdate:
 ## 待办
 
 - GO语言
+  - GC
+  - GPM模型
+  - 变量的逃逸分析
+
 - STL原理
 - workflow架构分析
-- 
+  - 如果程序出现了性能瓶颈。怎么解决呢？从哪些方面考虑？
+
+- gdb调试
+- 线程有几种状态？
+- RTTI
+- GO语言项目：groupcache（分布式缓存）
 

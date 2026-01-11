@@ -1,7 +1,7 @@
 ---
 title: GO基础语法
 date: 2026-01-05
-updated: 2025-01-05
+updated: 2025-01-07
 tags: [GO, 语法]
 categories: GO
 description: GO语言基础
@@ -477,3 +477,407 @@ func main() {
 ```
 
 ### map
+
+```go
+package main
+
+import "fmt"
+
+// 将 map 作为参数传递, 默认传递的也是引用
+func changeValue(myMap map[string]int) {
+	// 增加
+	myMap["ddd"] = 4
+	// 删除
+	delete(myMap, "aaa")
+	// 修改
+	myMap["ccc"] = 5
+}
+
+func main() {
+	// 1. 声明一个map, key为int, value为string. 但是不分配空间
+	var myMap map[string]string
+	if myMap == nil {
+		fmt.Println("myMap is nil")
+		myMap = make(map[string]string) // 此处省略第二个参数: 大小, 默认会分配一个较小的初始大小
+	}
+	myMap["one"] = "zhangsan"
+	myMap["two"] = "lisi"
+	myMap["three"] = "wangwu"
+	fmt.Println(myMap)
+
+	// 2. 使用make
+	map2 := make(map[string]int, 10) // 指定容量, 虽然没什么用（因为底层是哈希表）
+	fmt.Println(map2)
+
+	// 3. 声明同时初始化
+	map3 := map[string]int{
+		"aaa": 1,
+		"bbb": 2,
+		"ccc": 3,
+	}
+
+	changeValue(map3)
+
+	// 遍历
+	for key, value := range map3 {
+		value = 100 // 此处的 value 是值传递, 不会更改map内的值
+		fmt.Println(key, map3[key], value)
+	}
+}
+```
+
+### 面向对象
+
+#### 结构体
+
+```go
+package main
+
+import "fmt"
+
+type myInt int // 给 int 起别名, 类似于C++中的 typedef
+
+// 定义一个结构体
+type Student struct {
+	name string
+	age  int
+}
+
+func changeStudentByCopy(stu Student) {
+	stu.age = 100 // 更改失败, 结构体传值是值传递
+}
+
+// 指针传递
+func changeStudentByPoint(stu *Student) {
+	stu.age = 100 // 指针也可以通过 . 访问内部成员
+}
+
+func main() {
+	// 声明方式1
+	var zhangsan = Student{"zhangsan", 20}
+	fmt.Println(zhangsan)        // 可以用 Println 直接打印结构体
+	fmt.Printf("%v\n", zhangsan) // 也可以用%v占位符, %v可以格式化任何类型
+
+	changeStudentByCopy(zhangsan) // 更改失败
+	fmt.Println(zhangsan)
+
+	// 声明方式2
+	lisi := Student{
+		"lisi",
+		20,
+	}
+	changeStudentByPoint(&lisi) // 更改成功
+	fmt.Println(lisi)
+}
+```
+
+#### 类
+
+##### 封装
+
+```go
+package main
+
+import "fmt"
+
+// Student 大写字母开头让其他 package 也能访问到
+type Student struct {
+	Name string // 属性名大写字母开头, 表示该属性其他package可以直接访问
+	Age  int
+	id   int // 小写开头表示其他package无法访问
+}
+
+// 为 Student 绑定 getName 方法
+// 方法名大写字母开头, 表示其他 package 可以访问该方法
+func (stu *Student) GetName() string {
+	// stu 是调用该方法的当前对象的指针
+	return stu.Name
+}
+
+func (stu *Student) GetAge() int {
+	return stu.Age
+}
+
+func (stu *Student) SetName(name string) {
+	stu.Name = name
+}
+
+func (stu *Student) SetAge(age int) {
+	stu.Age = age
+}
+
+func (stu *Student) SetId(id int) {
+	stu.id = id
+}
+
+func (stu Student) Print() {
+	fmt.Printf("%s is %d years old\n", stu.GetName(), stu.Age)
+}
+
+// 下面写法需要注意
+func (stu Student) GetNameCopy() string {
+	// stu 是调用该方法的当前对象的拷贝（将原对象复制了一份）
+	return stu.Name
+}
+
+func main() {
+	stu := Student{"James", 20, 1}
+	stu.Print()
+
+	stu.SetAge(100)
+	stu.SetName("Jack")
+	stu.Print()
+
+	fmt.Println(stu.GetAge())
+}
+```
+
+##### 继承
+
+在`GO`语言中，继承没有公有和私有之分，子类可以直接访问父类的属性
+
+```go
+package main
+
+import "fmt"
+
+type Human struct {
+	name string
+	age  int
+	sex  string
+}
+
+func (human Human) Eat() {
+	fmt.Printf("Human %s eats!\n", human.name)
+}
+
+func (human Human) Work() {
+	fmt.Printf("Human %s works!\n", human.name)
+}
+
+type SuperMan struct {
+	Human // 只写类名, 不写对象名. 表示继承对应类的方法和属性
+	level int
+}
+
+// 重写父类方法
+func (super SuperMan) Eat() {
+	fmt.Printf("Super %s eats!!!\n", super.name)
+}
+
+// 重写父类方法
+func (super SuperMan) Work() {
+	fmt.Printf("Super %s works!!!\n", super.name)
+}
+
+// 子类新增方法
+func (superMan SuperMan) Fly() {
+	fmt.Printf("super %s Flying!!!\n", superMan.name)
+}
+
+func main() {
+	// 1. 直接声明并初始化子类
+	superHuman := SuperMan{Human{"李四", 20, "男"}, 1000}
+	superHuman.name = "王五" // 子类可以直接访问父类资源并更改
+	superHuman.Eat()
+	superHuman.Work()
+	superHuman.Fly()
+
+	// 2. 先声明对象, 再逐个赋值
+	var superMan SuperMan
+	superMan.name = "赵六"
+	superMan.age = 30
+	superMan.sex = "男"
+	superMan.level = 100
+	superMan.Work()
+	superMan.Fly()
+}
+```
+
+##### 多态
+
+在`GO`语言中，通过`interface`实现多态
+
+```go
+package main
+
+import "fmt"
+
+// Animal interface 本质是指针
+// 子类必须全部实现interface内的所有函数才能实现多态
+type Animal interface {
+	Sleep()
+	GetColor() string
+	GetType() string
+}
+
+type Bird struct {
+	color string
+}
+
+func (bird *Bird) Sleep() {
+	fmt.Println("bird sleep")
+}
+
+func (bird *Bird) GetColor() string {
+	return bird.color
+}
+
+func (bird *Bird) GetType() string {
+	return "Bird"
+}
+
+type Cat struct {
+	color string
+}
+
+func (cat *Cat) Sleep() {
+	fmt.Println("cat sleep")
+}
+
+func (cat *Cat) GetColor() string {
+	return cat.color
+}
+
+func (cat *Cat) GetType() string {
+	return "Cat"
+}
+
+func animalSleep(animal Animal) {
+	fmt.Printf("%s color %s Sleep\n", animal.GetColor(), animal.GetType())
+	animal.Sleep()
+}
+
+func main() {
+	bird := Bird{color: "black"}
+	animalSleep(&bird)
+
+	cat := Cat{color: "yellow"}
+	animalSleep(&cat)
+}
+```
+
+###### 万能类型和类型断言
+
+在`GO`语言中，`int,string,float32,float64,struct`等这些基本类型都实现了`interface{}`的接口，因此可以用`interface{}`类型去指向(或者说引用)任意类型的对象。因此`interface{}`被称为万能类型。
+
+既然`interface`是万能类型，可以引用任何其他类型，那该如何判断其引用的具体是哪种类型呢？此时可以通过类型断言，而类型断言只有`interface{}`类型有，其他类型没有
+
+```go
+package main
+
+import "fmt"
+
+type Book struct {
+	title string
+}
+
+func test(arg interface{}) {
+	fmt.Println(arg)
+
+	// 类型断言
+	// 判断 arg 是否为 string 类型,
+	// 如果是, 赋值给value, 且ok为true
+	// 如果不是, value为空串, 且ok为false
+	value, ok := arg.(string)
+	if !ok {
+		fmt.Println("arg is not a string") // 此时 value 为空串
+	} else {
+		fmt.Println(value)
+	}
+	fmt.Println("===========================")
+}
+
+func main() {
+	test(100)
+	test("hello world")
+	test(Book{"Golang"})
+	test(3.14)
+	test(map[string]string{
+		"001": "C++",
+		"002": "Go",
+		"003": "Python",
+	})
+}
+```
+
+> 从上述代码中也可以看出，类型断言也可以用来进行特殊的类型强转，因为如果断言成功将会返回断言的目标类型的值
+
+### 反射
+
+#### 变量的内置`pair`结构
+
+![image-20260111185531531](https://image-1258881983.cos.ap-beijing.myqcloud.com/image-20260111185531531.png)
+
+在`GO`语言中，每一个变量其实都包括`（type, value）`两部分，`value`就是变量的值，而`type`则是变量的类型，`type`又可以分为两种：一种是声明变量时指定的类型（如`int`，`string`，结构体等），另一种是接口`interface`内部实际存储的类型（主要涉及多态）。可以通过`reflect.TypeOf(变量名)`来获取某个变量的`type`。
+
+上面提到的万能类型的`interface{}`的类型断言，就是通过判断`type`是否是指定值来实现的。
+
+```go
+package main
+
+import (
+	"fmt"
+	"reflect"
+)
+
+type Person interface {
+	Eat()
+}
+
+type Student struct {
+	Name string
+	Age  int
+}
+
+func (s Student) Eat() {
+	fmt.Println(s.Name, " eat")
+}
+
+func main() {
+	var num = 100
+	fmt.Println(reflect.TypeOf(num))
+	stu := Student{"张三", 20}
+	fmt.Println(reflect.TypeOf(stu))
+
+	var person Person
+	fmt.Println(reflect.TypeOf(person)) // 对于一个interface, 如果未指向任何对象, 那么 type 就为空
+}
+```
+
+再看下一段代码：
+
+```go
+package main
+
+import "fmt"
+
+type Reader interface {
+	ReadBook()
+}
+
+type Writer interface {
+	WriteBook()
+}
+
+type Book struct {
+	Name string
+}
+
+func (b Book) ReadBook() {
+	fmt.Println("ReadBook")
+}
+
+func (b Book) WriteBook() {
+	fmt.Println("WriteBook")
+}
+
+func main() {
+	var reader Reader = &Book{"Bob"}
+	reader.ReadBook()
+	var writer Writer = reader.(Writer) // 这一行断言能执行成功就是因为 reader 的 type 中有 Writer
+	writer.WriteBook()
+}
+```
+
+#### 反射使用
