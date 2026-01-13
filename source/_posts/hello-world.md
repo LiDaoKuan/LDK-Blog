@@ -42,4 +42,5 @@ noticeOutdate:
 - 线程有几种状态？
 - RTTI
 - GO语言项目：groupcache（分布式缓存）
+- 什么是协程？协程和线程的区别是什么？
 

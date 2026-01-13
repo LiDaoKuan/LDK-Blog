@@ -1,7 +1,7 @@
 ---
 title: GO基础语法
 date: 2026-01-05
-updated: 2025-01-07
+updated: 2026-01-07
 tags: [GO, 语法]
 categories: GO
 description: GO语言基础
@@ -535,7 +535,12 @@ package main
 
 import "fmt"
 
-type myInt int // 给 int 起别名, 类似于C++中的 typedef
+type myInt int // 给 int 起别名, 类似于C++中的 typedef, 
+// 但是GO中的别名和原名是不兼容的, 例如 myInt 类型的变量不能直接赋值给 int 类型的变量
+// var num int = 100
+// var myNum myInt = num // 报错
+// var myNum myInt = myInt(num) // 显示转换, 可行
+// var myNum myInt = 100 // 可行
 
 // 定义一个结构体
 type Student struct {
@@ -881,3 +886,127 @@ func main() {
 ```
 
 #### 反射使用
+
+此处仅为反射的简单使用，更详细的使用在：[GO语言反射](./GO反射.md).
+
+```go
+package main
+
+import (
+	"fmt"
+	"reflect"
+)
+
+type User struct {
+    // 反引号内部是字段的tag, 以key:value的形式存在, 
+    // key一般不加双引号, value一般为字符串（加双引号）, 
+    // 一个字段可以有多对key-value, 中间用空格隔开。
+    // tag相当于运行时的注释。使用场景如下：
+	Id   int    `info:"id" docs:"学号"`   
+	Name string `json:"username"`       // 例如用于json的序列化和反序列化, 这样序列化后的JSON字段名为username而不是Name
+	Age  int    `gorm:"column:userage"` // 例如用于数据库映射，Gorm内部会根据设置好的tag映射到数据库中的列名
+}
+
+// 注意！ 此方法并不会被NumMethod()方法算作类内的方法，因为传递对象时使用的是指针
+func (user *User) CallByPoint() {
+	fmt.Println("User(*) is called ..")
+	fmt.Printf("%v\n", user)
+}
+
+// 因为 方法小写字母开头， 所以也不被 NumMethod算作类内方法
+func (user User) call() {
+	fmt.Println("User is called ..")
+	fmt.Printf("%v\n", user)
+}
+
+func (user User) Call() int {
+	fmt.Println("User is called ..")
+	fmt.Printf("%v\n", user)
+	return 0
+}
+
+func DoFiledAndMethod(input interface{}) {
+	// 获取 input 的 type
+	inputType := reflect.TypeOf(input)
+	fmt.Println("inputType: ", inputType.Name()) // 获取类型名
+	// fmt.Println(inputType) // 直接打印inputType将会输出 包名.类型名
+
+	// 获取 input 的 value
+	inputValue := reflect.ValueOf(input)
+	fmt.Println("inputValue: ", inputValue)
+
+	// 通过 type 获取里面的字段名，字段类型和字段值
+	// NumField() 函数返回类型内部包含的字段的个数
+	// Field(index) 函数根据传入的index函数返回第index个字段的值或者类型（具体看调用着）
+
+	for i := 0; i < inputType.NumField(); i++ {
+		field := inputType.Field(i)            // 获取第 i 个字段
+		fmt.Println("fieldName: ", field.Name) // 获取字段名（就是变量名）
+		fmt.Println("fieldType: ", field.Type) // 获取字段类型
+		// tag本质也是string
+		if field.Tag != "" {
+			fmt.Println("tag: ", field.Tag) // 获取 tag
+		}
+
+		fieldValue := inputValue.Field(i)                  // 获取第 i 个字段的值
+		fmt.Println("fieldValue:", fieldValue.Interface()) // 此处Interface是否调用不影响？？？
+		fmt.Println("====================================")
+	}
+
+	// 通过 type 获取里面的方法
+	// NumMechod()方法返回类型中包含的方法的数量. 不包括指针传值的函数和函数名小写字母开头
+	for i := 0; i < inputType.NumMethod(); i++ {
+		method := inputType.Method(i)
+		methodValue := inputValue.Method(i)
+		fmt.Println("methodName: ", method.Name)  // 方法名称
+		fmt.Println("methodType: ", method.Type)  // 方法类型信息（参数和返回值类型）
+		fmt.Println("methodValue: ", methodValue) // 类似于C++中方法的地址
+		methodValue.Call([]reflect.Value{})       // 调用方法
+	}
+}
+
+func main() {
+	user := User{1, "Jack", 20}
+	DoFiledAndMethod(user)
+}
+```
+
+#### struct内的tag在json中的使用
+
+```go
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+)
+
+type Movie struct {
+	Title  string   `json:"title"`
+	Year   int      `json:"year"`
+	Price  int      `json:"price"`
+	Actors []string `json:"actors"`
+}
+
+func main() {
+	movie := Movie{"喜剧之王", 2000, 10, []string{"xingyue", "zhangbozhi"}}
+
+	// 编码
+	jsonEncodeStr, err := json.Marshal(movie)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("jsonStr: ", string(jsonEncodeStr))
+
+	// 解码
+	movie = Movie{}
+	err = json.Unmarshal(jsonEncodeStr, &movie)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("movie: ", movie)
+}
+```
+
