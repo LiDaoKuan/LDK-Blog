@@ -523,6 +523,34 @@ func main() {
 		value = 100 // 此处的 value 是值传递, 不会更改map内的值
 		fmt.Println(key, map3[key], value)
 	}
+    
+    // 如果不需要key, 只需要value, 可以这样
+    for _, value := range map3 {
+        fmt.Println("value: ", value)
+    }
+    
+    // 如果只需要key, 可以这样
+    for key := range map3{
+        fmt.Println("key: ", key, "value: ", map3[key])
+    }
+    
+    // map类型的切片数组
+    sliceMap := make([]map[string]string, 5)
+    // 注意此处获取的是下标i, 方便对sliceMap[i]进行操作
+    for i := range sliceMap {
+        sliceMap[i] = make(map[string]string, 1)
+        sliceMap[i]["key1"] = "value1" 
+    }
+    fmt.Printf("sliceMap: %v\n", sliceMap)
+    
+    // 错误的写法：
+    // NOT GOOD!
+    items2 := make([]map[int]int, 5)
+    for _, item := range items2 {
+        item = make(map[int]int, 1) // item is only a copy of the slice element.
+        item[1] = 2 // This 'item' will be lost on the next iteration.
+    }
+    fmt.Printf("Value of items: %v\n", items2)
 }
 ```
 
@@ -573,6 +601,22 @@ func main() {
 	}
 	changeStudentByPoint(&lisi) // 更改成功
 	fmt.Println(lisi)
+}
+```
+
+#### 匿名结构体
+
+```go
+func main(){
+    // 定义一个匿名结构体
+    d := struct {
+        // 第一个大括号内写匿名结构体的定义（有哪些字段）
+        fn func() string // 函数作为结构体的字段
+    }{
+        // 第二个大括号用于初始化匿名结构体（给字段赋值）
+        fn: func() string { return "Hello, World!" },
+    }
+    println(d.fn()) // 调用函数
 }
 ```
 
