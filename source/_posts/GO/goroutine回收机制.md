@@ -17,7 +17,7 @@ goroutine的回收是自动进行的，但是有前提条件：
    - 对应的G对象可能被放入缓存池以便复用
 3. **垃圾回收（GC）清理**：当 dead goroutine 没有任何引用时，会在 GC 中彻底释放内存。
 
-> 如果goroutine一直被阻塞或者被引用，它将无法回收，造成资源泄漏（goroutine leak）.
+> **如果goroutine一直被阻塞或者被引用，它将无法回收，造成资源泄漏（goroutine leak）**.
 
 例如：
 

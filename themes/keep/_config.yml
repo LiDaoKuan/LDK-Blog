@@ -59,8 +59,9 @@ first_screen:
   # You can use the "||" to begin a newline, maximum is two lines.
   description: Keep writing and Keep loving.
 
+  # 一言
   # If enable hitokoto, first screen description is different every time when you enter the website
-  hitokoto: true      # Option values: true | false
+  hitokoto: false      # Option values: true | false
 
 
 # ---------------------------------------------------------------------------------------
