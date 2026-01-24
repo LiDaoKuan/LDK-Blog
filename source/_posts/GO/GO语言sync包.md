@@ -344,3 +344,44 @@ func main() {
 
 #### sync.Cond
 
+条件变量。用于在条件满足时唤醒正在等待的goroutine。
+
+使用示例：
+
+```go
+type Queue struct {
+    mu    sync.Mutex
+    cond  *sync.Cond
+    items []interface{}
+}
+
+func NewQueue() *Queue {
+    q := &Queue{}
+    q.cond = sync.NewCond(&q.mu)
+    return q
+}
+
+// 生产者
+func (q *Queue) Enqueue(item interface{}) {
+    q.mu.Lock()
+    defer q.mu.Unlock()
+    
+    q.items = append(q.items, item)
+    q.cond.Signal() // 通知一个等待的 goroutine
+}
+
+// 消费者
+func (q *Queue) Dequeue() interface{} {
+    q.mu.Lock()
+    defer q.mu.Unlock()
+    
+    for len(q.items) == 0 {
+        q.cond.Wait() // 等待直到队列非空
+    }
+    
+    item := q.items[0]
+    q.items = q.items[1:]
+    return item
+}
+```
+

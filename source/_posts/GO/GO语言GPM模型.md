@@ -9,9 +9,9 @@ description: GO语言GPM模型
 
 #### GPM模型
 
-> 更高详细的GO的并发细节参照[GO程序员笔试面试宝典](https://golang.design/go-questions/sched/work-steal/)
+> 因为写这篇文章时对很多细节还不了解，也没看源码。感觉脑瓜子还是一团乱麻。等后面有机会再梳理一下。
 >
-> 并非引流，只是因为写这篇文章时对细节还不了解，也没看源码。感觉脑瓜子还是一团乱麻。等后面有机会再梳理一下。
+> 更高详细的GO的并发细节参照[GO程序员笔试面试宝典](https://golang.design/go-questions/sched/work-steal/)。
 
 - G：Goroutine
 

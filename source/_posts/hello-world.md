@@ -52,9 +52,20 @@ noticeOutdate:
 - 线程切换上下文后，被切换的线程上下文存在哪里？
 - new和malloc的区别
 - memmove实现
-- memcopy和memmove的区别
-- 虚函数和纯虚函数的区别
+- memcopy和memmove的区别？
+- 虚函数和纯虚函数的区别？
+- TCP粘包问题？
 
 #### Go面试问题
 
 - GO的channel是线程安全的吗？
+
+#### 通用面试题
+
+- 虚假唤醒
+
+  - C++怎么解决？
+  - GO怎么解决？
+  - Java怎么解决？
+
+- CGI
