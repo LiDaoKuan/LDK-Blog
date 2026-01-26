@@ -2,7 +2,7 @@
 title: Ubuntu配置Aria2
 date: 2026-01-12
 updated: 2026-01-13
-tags: [Linux tools, aria2]
+tags: [Linux tools, aria2, proxy]
 categories: Linux
 description: Linux下aria2的配置
 ---

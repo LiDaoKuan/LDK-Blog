@@ -55,6 +55,7 @@ noticeOutdate:
 - memcopy和memmove的区别？
 - 虚函数和纯虚函数的区别？
 - TCP粘包问题？
+- `map`和`unordered_map`的透明查询
 
 #### Go面试问题
 

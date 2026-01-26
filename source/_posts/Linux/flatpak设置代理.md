@@ -2,7 +2,7 @@
 title: 给flatpak安装的应用设置代理
 date: 2026-01-14
 updated: 2026-01-15
-tags: [Linux tools, flatpak]
+tags: [Linux tools, flatpak, proxy]
 categories: Linux
 description: flatpak设置代理
 ---
