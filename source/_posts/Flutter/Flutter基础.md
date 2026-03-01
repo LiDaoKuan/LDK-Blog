@@ -792,9 +792,218 @@ class _MainPageState extends State<MainPage> {
 
 让单个子组件可以滚动，所有内容一次性渲染。
 
+```dart
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MainPage());
+}
+
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
+  @override
+  State<MainPage> createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
+  ScrollController _scrollController = ScrollController();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: Text('SingleChildScrollView')),
+        body: Stack(
+          children: [
+            // 只能包含一个组件，如果滚动多个组件，通常它们嵌套在Column或者Row中
+            // 通过scrollDirection属性控制滚动方向，默认为垂直方向（Axis.vertical）
+            // 特点：一次性构建所有组件，如果嵌套的Column或者Row包含大量子组件，可能导致性能问题。
+            // 控制滚动：绑定一个ScrollController对象，通过animateTo/jumpTo方法控制滚动。
+            SingleChildScrollView(
+              padding: EdgeInsets.all(20),
+              controller: _scrollController,
+              child: Column(
+                children: List.generate(100, (index) {
+                  return Container(
+                    margin: EdgeInsets.only(top: 10),
+                    width: double.infinity,
+                    height: 100,
+                    color: Colors.blue,
+                    alignment: Alignment.center,
+                    child: Text(
+                      '我是第${index + 1}个',
+                      style: TextStyle(color: Colors.white, fontSize: 20),
+                    ),
+                  );
+                }),
+              ),
+            ),
+            Positioned(
+              right: 10, // 右边距为10
+              top: 10, // 上边距为10
+              child: GestureDetector(
+                onTap: () {
+                  // print('去顶部');
+                  // _scrollController.jumpTo(0); // 不带动画跳转
+                  // 带动画的跳转
+                  _scrollController.animateTo(
+                    0,
+                    duration: Duration(seconds: 1),
+                    curve: Curves.easeIn,
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(40),
+                    color: Colors.red,
+                  ),
+                  width: 80,
+                  height: 80,
+                  alignment: Alignment.center,
+                  child: Text('去顶部', style: TextStyle(color: Colors.white)),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 10, // 右边距为10
+              bottom: 10, // 上边距为10
+              child: GestureDetector(
+                onTap: () {
+                  // print("去底部");
+                  // _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+                  // 带动画的跳转
+                  _scrollController.animateTo(
+                    _scrollController.position.maxScrollExtent,
+                    duration: Duration(seconds: 1),
+                    curve: Curves.bounceIn,
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(40),
+                    color: Colors.red,
+                  ),
+                  width: 80,
+                  height: 80,
+                  alignment: Alignment.center,
+                  child: Text('去底部', style: TextStyle(color: Colors.white)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
 ##### ListView
 
 线性列表，通过build可以实现懒加载，性能优异。
+
+
+##### `ListView.builder()`
+
+```dart
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MainPage());
+}
+
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
+  @override
+  State<MainPage> createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
+  ScrollController _scrollController = ScrollController();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: Text('ListView builder')),
+        body: ListView.builder(
+          itemBuilder: (BuildContext context, int index) {
+            return Container(
+              margin: EdgeInsets.only(top: 10),
+              width: double.infinity,
+              height: 100,
+              color: Colors.blue,
+              alignment: Alignment.center,
+              child: Text(
+                '我是第${index + 1}个',
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+            );
+          },
+          itemCount: 100, // 列表长度
+          padding: EdgeInsets.symmetric(horizontal: 20),
+        ),
+      ),
+    );
+  }
+}
+```
+
+###### `ListView.seperate()`
+
+```dart
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MainPage());
+}
+
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
+  @override
+  State<MainPage> createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
+  ScrollController _scrollController = ScrollController();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: Text('ListView separate')),
+        body: ListView.separated(
+          itemCount: 100, // 列表长度
+          itemBuilder: (BuildContext context, int index) {
+            return Container(
+              width: double.infinity,
+              height: 100,
+              color: Colors.blue,
+              alignment: Alignment.center,
+              child: Text(
+                '我是第${index + 1}个',
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+            );
+          },
+          // 列表项间隔
+          separatorBuilder: (context, index) {
+            return Container(
+              height: 10,
+              width: double.infinity,
+              color: Colors.yellow,
+            );
+          },
+          padding: EdgeInsets.symmetric(horizontal: 20),
+        ),
+      ),
+    );
+  }
+}
+```
 
 ##### GridView
 
@@ -804,6 +1013,228 @@ class _MainPageState extends State<MainPage> {
 
 复杂布局方案，通过组合多个Sliver组件实现滚动。
 
+```dart
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MainPage());
+}
+
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
+  @override
+  State<MainPage> createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
+  ScrollController _scrollController = ScrollController();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: Text('CustomScrollView')),
+        body: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Container(
+                color: Colors.blue,
+                alignment: Alignment.center,
+                height: 260,
+                child: Text(
+                  '轮播图',
+                  style: TextStyle(color: Colors.red, fontSize: 30),
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: 10)),
+            SliverPersistentHeader(
+              delegate: _StickCategory(),
+              pinned: true, // 固定吸顶
+            ),
+            SliverToBoxAdapter(child: SizedBox(height: 10)),
+            SliverList.separated(
+              itemCount: 100,
+              itemBuilder: (BuildContext context, int index) {
+                return Container(
+                  height: 100,
+                  color: Colors.blue,
+                  alignment: Alignment.center,
+                  child: Text(
+                    '列表项${index + 1}',
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                );
+              },
+              separatorBuilder: (BuildContext context, int index) {
+                return SizedBox(height: 10);
+              },
+            ),
+          ], // 切片列表
+        ),
+      ),
+    );
+  }
+}
+
+class _StickCategory extends SliverPersistentHeaderDelegate {
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Container(
+      color: Colors.white,
+      child: ListView.builder(
+        itemCount: 30,
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (BuildContext context, int index) {
+          return Container(
+            color: Colors.blue,
+            alignment: Alignment.center,
+            width: 100,
+            margin: EdgeInsets.symmetric(horizontal: 10),
+            child: Text(
+              '分类${index + 1}',
+              style: TextStyle(color: Colors.white),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  @override
+  // 最大展开高度（不吸顶时最大高度）
+  double get maxExtent => 80;
+
+  @override
+  // 最小折叠高度。（吸顶时最小高度）
+  double get minExtent => 40;
+
+  @override
+  // 是否需要重建
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
+    return false;
+  }
+}
+```
+
 ##### PageView
 
 整页滚动效果，支持横向和纵向。
+
+```dart
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MainPage());
+}
+
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
+  @override
+  State<MainPage> createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
+  ScrollController _scrollController = ScrollController();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(title: Text('ListView separate')),
+        body: ListView.separated(
+          itemCount: 100, // 列表长度
+          itemBuilder: (BuildContext context, int index) {
+            return Container(
+              width: double.infinity,
+              height: 100,
+              color: Colors.blue,
+              alignment: Alignment.center,
+              child: Text(
+                '我是第${index + 1}个',
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+            );
+          },
+          // 列表项间隔
+          separatorBuilder: (context, index) {
+            return Container(
+              height: 10,
+              width: double.infinity,
+              color: Colors.yellow,
+            );
+          },
+          padding: EdgeInsets.symmetric(horizontal: 20),
+        ),
+      ),
+    );
+  }
+}
+```
+
+#### 网络
+
+##### `Dio`
+
+```dart
+import 'dart:ui';
+
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+
+void main() {
+  Dio()
+      .get("https://geek.itheima.net/v1_0/channels")
+      .then((value) {
+        print("value: ${value}");
+      })
+      .catchError((error) {
+        print("error: " + error);
+      });
+}
+
+class DioUtils {
+  final Dio _dio = Dio();
+
+  DioUtils() {
+    _dio.options.baseUrl = "https://geek.itheima.net/v1_0/";
+    _dio.options.connectTimeout = Duration(seconds: 10); // 连接超时
+    _dio.options.sendTimeout = Duration(seconds: 5);
+    _dio.options.receiveTimeout = Duration(seconds: 10);
+
+    // 拦截器
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        // 请求拦截器
+        onRequest: (options, handler) {
+          // handler.next(requestOptions) // 放过请求
+          // handler.reject(error) // 拦截请求
+          handler.next(options);
+        },
+        // 响应拦截器
+        onResponse: (response, handler) {
+          if (response.statusCode! >= 200 && response.statusCode! < 300) {
+            handler.next(response);
+            return;
+          }
+          handler.reject(DioException(requestOptions: response.requestOptions));
+        },
+        // 错误拦截器
+        onError: (error, handler) {
+          handler.reject(error);
+        },
+      ),
+    );
+  }
+
+  Future<Response<dynamic>> get(String url, {Map<String, dynamic>? params}) {
+    return _dio.get(url, queryParameters: params);
+  }
+}
+```
