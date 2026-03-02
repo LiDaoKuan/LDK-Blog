@@ -1,10 +1,10 @@
 ---
-title: workflow源码分析——http实现
+title: workflow源码分析——http请求-01
 date: 2026-02-18
-updated: 2026-02-18
+updated: 2026-02-19
 tags: [sogo workflow, C++, project]
 categories: sogo workflow
-description: 
+description: workflow源码分析——http请求构建
 ---
 
 ## 先看一个简单的例子
@@ -346,7 +346,13 @@ int CommScheduler::request(CommSession *session, CommSchedObject *object, const 
 }
 ```
 
-那么，此处传入的`CommSchedObject`和`CommTarget`是什么呢？
+> 注意`object->acquire(wait_timeout);`函数。
+>
+> 这个函数是用来获取连接的。可能是复用已有的空闲连接，也可能是新创建的连接。
+> 
+> 具体后面再说
+
+那么，`request`函数传入的`CommSchedObject`和`CommTarget`是什么呢？
 
 在`WFComplexClientTask`的构造函数中可以看到，变量`CommScheduler::object`在初始化时传入的是`NULL`（通过子类构造函数一层一层向上传递），显然`NULL`值不可能直接拿来用，那是在哪里传入的非空值呢？
 
@@ -375,11 +381,13 @@ this->set_request_object(route_result_.request_object)
 
 而此处传入的`route_result_.request_object`其实就是之前说的DNS解析生成的数据。它是`CommSchedObject*`类型。关于DNS解析，此处先略过。
 
+### `CommSchedObject`
+
 所以`CommSchedObject`到底是一个什么呢？可以暂时这样理解：
 
 ```cpp
 /*
-CommSchedObject: 路由结果的核心, 指向一个可被调度的连接对象. 具体可能是两种类型:
+CommSchedObject: 路由结果的核心, 表示一个可被调度的连接对象. 具体可能是两种类型（子类）:
     - CommSchedTarget: 当 DNS 解析结果只有一个 IP 地址时, 它直接代表一个具体的服务器目标.
     - CommSchedGroup: 当 DNS 解析结果有多个 IP 地址(即多个目标)时, 它是一个负载均衡组, 内部根据策略(如轮询或一致性哈希)选择一个目标进行连接
 */
@@ -409,5 +417,124 @@ public:
     friend class CommScheduler;
 };
 ```
+
+也就是说：这个类其实是为了**负载均衡**而设计的。因为第一次请求的时候，我们不知道目标是一个还是多个，所以上面`set_request_object(route_result_.request_object)`中的`request_object`可能是两种：
+
+- `CommSchedTarget`: 当 DNS 解析结果只有一个 IP 地址时, 它直接代表一个具体的服务器目标.
+- `CommSchedGroup`: 当 DNS 解析结果有多个 IP 地址(即多个目标)时, 它是一个**负载均衡组**, 内部根据策略(在workflow中是连接池活跃连接数)选择一个目标进行连接.
+
+> 注意，这里的负载指的是：
+> 
+> - 每个 `CommSchedTarget` 代表一个目标服务器 IP（例如 192.168.1.10）。
+> - 每个 `CommSchedTarget` 内部维护一个**连接池**（例如：最多 100 个连接到 192.168.1.10）。
+> - `CommSchedGroup` 内部保存了同一个域名解析出的多个 `IP` 对应的多个 `CommSchedTarget` 。通过比较每个目标 `IP` 对应的 `CommSchedTarget` 的连接池使用率（活跃连接数）来决定"哪个目标更空闲"。
+
+```cpp
+class CommSchedTarget : public CommSchedObject, public CommTarget
+{
+    /* ... */
+}
+```
+
+```cpp
+class CommSchedGroup : public CommSchedObject
+{
+    /* ... */
+}
+```
+
+`CommSchedTarget`和`CommSchedGroup`都继承了`CommSchedObject`.
+
+而`CommSchedTarget`又继承了`CommTarget`。`CommTarget`是通讯目标（`IP + PORT`）.
+
+此处需要区分：
+
+前面我们说了，`CommSchedObject: 路由结果的核心, 表示一个可被调度的连接对象`。此处的**可调度**实际上指的是连接池的调度。
+
+而`CommTarget`则表示通信的对端对象。
+
+### `CommTarget`
+
+```cpp
+// 存储对端的连接信息
+class CommTarget {
+public:
+    int init(const sockaddr *addr, socklen_t addrlen, int connect_timeout, int response_timeout);
+
+    /* 执行清理操作 */
+    void deinit();
+
+    void get_addr(const sockaddr **addr, socklen_t *addrlen) const {
+        *addr = this->addr;
+        *addrlen = this->addrlen;
+    }
+
+    [[nodiscard]] bool has_idle_conn() const { return !list_is_empty(&this->idle_list); }
+
+    /* 省略很多方法 */
+
+    /* 下面的虚函数是设计核心：
+     * 类定义了操作骨架，而将具体步骤的实现放在子类中。使得扩展不同协议（HTTP/Redis/MySQL）变得非常容易 */
+private:
+    /* 创建流式Socket. 默认使用socket()系统调用. 派生类可重写以定制Socket选项(如非阻塞模式) */
+    virtual int create_connect_fd() {
+        return socket(this->addr->sa_family, SOCK_STREAM, 0);
+    }
+
+    /**工厂方法. 根据已连接的Socket文件描述符，创建特定的连接对象（如 HttpConnection, RedisConnection）.
+     * 默认返回基础的 CommConnection，派生类应重写此方法来实例化自己的特定连接对象 */
+    virtual CommConnection *new_connection(int connect_fd) { return new CommConnection; }
+
+    /* 省略很多方法 */
+
+public:
+    virtual void release() {}   // 注意此函数是空实现！！！
+
+private:
+    sockaddr *addr;
+    socklen_t addrlen;
+    int connect_timeout;     // 连接超时时间
+    int response_timeout;    // 等待响应超时时间
+    int ssl_connect_timeout; //SSL上下文，用于加密连接。包含SSL握手超时
+    SSL_CTX *ssl_ctx;        // SSL上下文，用于加密连接
+
+    list_head idle_list;   // 空闲连接链表. 用于实现连接池, 管理空闲的持久连接以提升性能.
+    pthread_mutex_t mutex; // 互斥锁
+    friend class CommServiceTarget;
+    friend class Communicator;
+};
+```
+
+从源码中可以看出，`CommTarget`中不仅存储了对端的`sockaddr`（`IP+PORT`），还有两个超时参数，以及**空闲连接池**`idle_list`。
+
+`CommTarget`是什么时候创建的呢？
+
+前面说过，`scheduler->request()` 中，有一个函数调用是这么写的：
+
+```cpp
+*target = object->acquire(wait_timeout);
+```
+
+这个`object->acquire(wait_timeout)`返回的就是一个`CommTarget`。当然根据多态，真正返回的是它的子类。这个前面已经讲过了。
+
+## 总结
+
+这一节中，有许多的细节，但是我们抛开细节看流程
+
+1. 我们用户调用的是`create_http_task`
+
+2. http task实际上是 new 了一个 `ComplexHttpTask`
+
+3. `ComplexHttpTask`继承自`WFComplexClientTask<HttpRequest, HttpResponse>`
+
+这里把client加入http的特化信息
+
+4. `WFComplexClientTask`的核心在于他实现的dispatch，但是他的`dispatch`首先进来是插入一个dns解析的task
+
+5. dns解析设置了`route_result_.request_object`
+
+6. 再次到`WFComplexClientTask`，执行`dispatch`其实是`CommRequest::dispatch()`
+
+7. 在`CommRequest::dispatch()`中，我们从`route_result_.request_object`获取到通信的目标，然后`comm.request(session, *target);`发送出请求。
 
 
