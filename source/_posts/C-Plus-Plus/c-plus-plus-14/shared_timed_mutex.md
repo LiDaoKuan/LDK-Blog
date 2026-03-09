@@ -1,7 +1,7 @@
 ---
 title: shared_timed_mutex
-tags: [Cpp, 并法, 原子操作, 锁]
-categories: Cpp
+tags: [C++, 并法, 原子操作, 锁]
+categories: C++
 date: 2025-07-06
 ---
 

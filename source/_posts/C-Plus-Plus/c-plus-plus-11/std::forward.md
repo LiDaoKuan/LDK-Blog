@@ -1,7 +1,7 @@
 ---
 title: 完美转发(std::forward)
-tags: [Cpp, 移动语义, 完美转发]
-categories: Cpp
+tags: [C++, 移动语义, 完美转发]
+categories: C++
 date: 2025-07-06
 ---
 

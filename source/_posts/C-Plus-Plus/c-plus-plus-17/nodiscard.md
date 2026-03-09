@@ -1,7 +1,7 @@
 ---
 title: C++ nodiscard
-tags: [Cpp, 语法]
-categories: Cpp
+tags: [C++, 语法]
+categories: C++
 date: 2025-07-06
 ---
 

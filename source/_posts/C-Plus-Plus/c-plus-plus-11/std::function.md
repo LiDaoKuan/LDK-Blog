@@ -1,7 +1,7 @@
 ---
 title: std::function详解
-tags: [Cpp]
-categories: Cpp
+tags: [C++]
+categories: C++
 date: 2025-10-06
 ---
 

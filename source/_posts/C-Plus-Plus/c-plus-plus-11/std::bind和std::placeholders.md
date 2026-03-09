@@ -1,7 +1,7 @@
 ---
 title: std::bind和std::placeholders详解
-tags: [Cpp]
-categories: Cpp
+tags: [C++]
+categories: C++
 date: 2025-07-06
 ---
 

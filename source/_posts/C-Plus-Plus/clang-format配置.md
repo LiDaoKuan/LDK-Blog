@@ -2,7 +2,7 @@
 title: clang-format配置
 date: 2026-01-06
 updated: 2026-01-06
-tags: [Cpp, Linux]
+tags: [C++, Linux]
 categories: Linux
 description: clang-format配置
 ---

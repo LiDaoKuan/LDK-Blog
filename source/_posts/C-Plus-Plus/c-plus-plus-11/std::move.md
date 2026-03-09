@@ -1,7 +1,7 @@
 ---
 title: 左值/右值引用和std::move
-tags: [Cpp, 移动语义]
-categories: Cpp
+tags: [C++, 移动语义]
+categories: C++
 date: 2025-07-06
 ---
 
