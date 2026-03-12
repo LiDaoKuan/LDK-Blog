@@ -1,7 +1,7 @@
 ---
 title: C++ RingBuffer实现
 date: 2026-02-21
-updated: 2026-02-21
+updated: 2026-02-22
 tags: [轮子, C++， RingBuffer, CAS(compare and swap)]
 categories: 轮子
 description: C++ 环形缓冲区(RingBuffer)实现
@@ -179,7 +179,7 @@ public:
     size_t size() const
     {
         const auto current_tail = tail_.load(std::memory_order_acquire);
-        const auto current_head = head_.load(std::memory_order_release);
+        const auto current_head = head_.load(std::memory_order_acquire);
 
         if (current_tail > current_head)
         {
@@ -208,4 +208,252 @@ private:
 #endif
 ```
 
-### 
+### MPMC场景实现
+
+MPMC 是指：Multiple-Producer, Multiple-Consumer，译为：多生产者多消费者。即：
+
+- 任意数量的生产者线程同时向队列中添加元素。
+- 任意数量的消费者线程同时从队列中取出元素。
+
+要实现 MPMC 的队列，核心挑战是：**双端竞争与ABA问题**
+
+#### 双端竞争（Double-Ended Contention）：
+
+- 生产者端：多个生产者线程会同时竞争，试图更新队列的 tail（尾部）指针。
+- 消费者端：多个消费者线程会同时竞争，试图更新队列的 head（头部）指针。
+
+在 SPSC 中，两端都没有竞争。在 MPSC/SPMC 中，只有一端存在竞争。而在 MPMC 中，两端都存在激烈的竞争，这使得简单的原子指针更新变得不可行，必须使用更复杂的同步原语，如 CAS (Compare-And-Swap) 循环。
+
+#### ABA问题：
+
+这是无锁编程中一个非常著名且致命的陷阱，在 MPMC 的朴素实现中极易出现。
+
+假设有两个线程 T1 和 T2, 线程 T1 读取内存地址 P 的值为 A。然后 T1 被操作系统挂起。
+
+> 在并发场景下，线程被挂起后，其他线程可能会修改共享数据，这就为 ABA 问题的发生创造了条件。
+
+与此同时，线程 T2 修改 P 的值为 B，然后又修改回 A。
+
+T1 恢复执行，它检查 P 的值，发现仍然是 A。T1 错误地认为从它上次读取到现在什么都没有改变，于是继续执行后续操作。
+
+在 MPMC 队列中，这种情况可能发生在 head 或 tail 指针上。这种情况是非常危险的，因为它可能导致数据结构的状态被错误地解释，进而引发数据损坏或程序崩溃。
+
+假设一个基于**链表**的队列，线程 T1 准备对头节点 head（其地址为 A）执行出队操作。但此时 T1 挂起了， 在 T1 被挂起时，线程 T2 将 A 节点出队、销毁，然后又有一个新节点恰好在相同的内存地址 A 处被分配。当 T1 恢复时，它看到的 head 地址仍然是 A，但这个 A 已经是一个全新的、不相关的节点了（因为这是一个基于链表的队列）。如果 T1 继续操作，就会导致数据损坏或程序崩溃。
+
+再举个银行转账的例子：
+
+假设张三银行卡有 100 块钱余额，且假定银行转账操作就是一个单纯的 `CAS`（compare and swap） 命令，对比余额旧值是否与当前值相同，如果相同则发生扣减/增加，我们将这个指令用 `CAS(origin,expect)` 表示。于是，我们看看接下来发生了什么：
+
+1. 张三在 ATM 1 转账 100 块钱给李四；
+2. 但是 ATM 1 出现了网络拥塞的原因，卡住了，这时候张三跑到旁边的 ATM 2 再次操作转账；
+3. ATM 2 正常执行了转账操作 `CAS(100, 0)`，**张三的账户余额变为了 0**。
+4. 王五此时又给张三账户上转了 100，此时**张三账户余额为 100**。
+5. 此时 ATM 1 网路恢复，**发现张三账户余额为100，以为刚刚没有转账成功**，继续执行刚刚的转账操作 `CAS(100, 0)`。**张三账户余额又变为 0**。
+
+问题来了，张三本意是给李四转100, 但因为网络拥堵，在不同的ATM上尝试了两遍。结果两遍都成功了，这显然不符合张三的本意。假设我们作为银行系统设计者和开发者，不接受这种情况存在，那我们就需要着手处理这种 ABA 问题了，如何解决，此处略过，后面会说。
+
+#### 实现策略
+
+实现一个正确且高效的 MPMC 无锁队列是个大难题。工业界主要采用以下几种经过验证的算法。
+
+##### Michael-Scott 队列
+
+最常见的 MPMC 无锁队列算法，基于无锁链表实现
+
+- 数据结构：一个单向链表，包含 head 和 tail 两个原子指针。
+
+- 哨兵节点 (Sentinel Node)：队列初始化时包含一个“哑节点”（dummy node），`head` 和 `tail` 都指向它。这个哨兵节点简化了边界条件（空队列/单元素队列），并有效地将生产者和消费者的竞争点分离开。
+
+- 入队 (Enqueue)：
+
+    1. 创建一个新节点。
+
+    2. 使用 CAS 循环，尝试将新节点链接到当前 `tail` 节点的 `next` 指针上。
+
+    3. 成功后，再尝试更新 `tail` 指针指向新的尾节点。
+
+- 出队 (Dequeue)：
+
+    1. 使用 CAS 循环，尝试将 `head` 指针移动到它的下一个节点 (`head->next`)。
+
+    2. 成功后，旧的 head（现在是哨兵节点）就可以被安全地回收了。
+
+> 解决 ABA 问题：通常通过“标记指针” (Tagged Pointer) 或版本计数器 (Version Counter) 来解决。即: 将指针和 一个计数器打包成一个更大的原子类型（如 128 位），每次修改指针时都增加计数器。CAS 操作需要同时比较指针和计数器，确保两者都未被改变。
+
+##### 现代高性能实现 (基于RIngBuffer)
+
+虽然 Michael-Scott 队列是无界的（unbounded），但其性能通常受限于**内存分配**和**链表遍历**。现代很多高性能 MPMC 队列是有界的（bounded），并且基于环形缓冲区，因为这能更好地利用 CPU 缓存。
+
+MPMC 的 RingBuffer 实现远比 SPSC 的 RingBuffer 复杂，其核心思想是：**给每个槽位加上版本号或者序列号，以协调生产者和消费者**。
+
+基本思路：
+
+维护两个原子计数器， `enqueue_ticket` 和 `dequeue_ticket` .
+
+- 生产者：
+    1. 原子地获取并递增 `enqueue_ticket` 得到一个唯一的入队”票号“。
+    2. 计算该票号对应的缓冲区索引： `idx = ticket % capacity` .
+    3. 自旋等待，直到 `buffer[idx]` 的版本号等于其票号，表示消费者已经消费完该槽位的旧数据，可以写入了。
+    4. 写入数据。
+    5. 将 `buffer[idx]` 的版本号 + 1， 以通知消费者数据已经准备好。
+- 消费者：
+    1. 原子地获取并且递增 `dequeue_ticket` 得到一个唯一的出队“票号”。
+    2. 计算该票号对应的缓冲区索引： `idx = ticket % capacity` .
+    3. 在自旋等待，直到 `buffer[idx]` 的版本号等于其票号，表示生产者已经写入新数据，可以消费了。
+    4. 读取数据。
+    5. 将 `buffer[idx]` 的版本号 + 1， 以通知生产者数据已经被消费。
+
+这种设计将对 `head`/`tail` 指针的直接竞争，转化为了对槽位版本号的等待，在很多场景下能提供更高的吞吐量。
+
+#### MPMC 场景的消息队列（基于链表）
+
+> 注意：该版本实现的整体逻辑没问题，但是代码简化了部分操作（只保证操作逻辑正确），不能直接用！
+
+```cpp
+#ifndef MPMC_QUEUE_H
+#define MPMC_QUEUE_H
+
+#include <atomic>
+#include <thread>
+
+template <typename T>
+class MPMCQueue
+{
+private:
+    struct Node
+    {
+        T data;
+        std::atomic<Node *> next;
+
+        Node(T val) : data(std::move(val)), next(nullptr);
+    };
+
+    // 缓存行对齐以避免伪共享
+    alignas(64) std::atomic<Node *> head_;
+    alignas(64) std::atomic<Node *> tail_;
+
+public:
+    MPMCQueue()
+    {
+        // 关键：创建一个哨兵节点，简化边界条件
+        // 队列初始化时，head_ 和 tail_ 都指向这个节点
+        Node *sentinel = new Node(T{}); // 这里的T是默认构造的哨兵数据
+        head_.store(sentinel);
+        tail_.store(sentinel);
+    }
+
+    ~MPMCQueue()
+    {
+        // 清理所有剩余的节点
+        T tmp;
+        while (try_dequeue(tmp))
+        {
+        }
+        // 删除最后的哨兵节点
+        delete head_.load();
+    }
+
+    // 禁止拷贝和赋值
+    MPMCQueue(const MPMCQueue &) = delete;
+    MPMCQueue &operator=(const MPMCQueue &) = delete;
+
+    /**
+     * @brief [多生产者线程调用] 尝试将一个元素入队。
+     */
+    void enqueue(T value)
+    {
+        Node *new_node = new Node{std::move(value)};
+
+        // CAS 循环：持续尝试，直到成功将新节点链接到链表尾部
+        while (true)
+        {
+            Node *last = tail_.load(std::memory_order_acquire);      // 获取当前尾节点，第一次是哨兵节点
+            Node *next = last->next.load(std::memory_order_acquire); // 获取尾节点的下一个节点
+
+            // 检查 tail_ 是否在我们读取之后被其他线程改变了（一致性检查，防止ABA问题）
+            if (last == tail_.load(std::memory_order_relaxed))
+            {
+                if (next == nullptr)
+                {
+                    // 这是正常情况：tail_ 指向的是真正的尾节点
+                    // 尝试将新节点链接到尾部，确保只有一个线程能够成功链接到旧的尾部。如果失败（被其他线程抢先链接了，循环重新开始）
+                    if (last->next.compare_exchange_weak(next, new_node, std::memory_order_release))
+                    {
+                        // 链接成功，现在尝试更新 tail_ 指针
+                        // 即使下面这步失败也没关系，其他线程会帮忙推进 tail_
+                        tail_.compare_exchange_weak(last, new_node, std::memory_order_release);
+                        // 成功入队
+                        return;
+                    }
+                }
+                // 已经有其他线程在添加节点
+                else
+                {
+                    // 帮助其他线程：tail_ 指针落后了，帮它更新到真正的尾节点
+                    tail_.compare_exchange_weak(last, next, std::memory_order_release);
+                }
+            }
+        }
+    }
+
+    /**
+     * @brief [多消费者线程调用] 尝试从队列中取出一个元素
+     * @return bool 如果返回false，表示队列为空
+     */
+    bool try_dequeue(T &value)
+    {
+        // CAS 循环：持续尝试，直到成功取出一个节点
+        while (true)
+        {
+            Node *first = head_.load(std::memory_order_release);
+            Node *last = tail_.load(std::memory_order_release);
+            Node *next = first->next.load(std::memory_order_release);
+
+            // 一致性检查，防止出现ABA问题
+            if (first == head_.load(std::memory_order_release))
+            {
+                // 队列为空，或者 tail_ 指针落后了
+                if (first == last)
+                {
+                    if (next == nullptr)
+                    {
+                        return false; // 队列确定为空
+                    }
+                    // tail_ 落后，帮助其他线程推进它
+                    tail_.compare_exchange_weak(last, next, std::memory_order_release);
+                }
+                // 队列不为空
+                else
+                {
+                    // 尝试移动 head_ 指针
+                    // 我们要取出的值在 next 节点中（因为first是哨兵节点）
+                    if (head_.compare_exchange_weak(first, next, std::memory_order_release))
+                    {
+                        value = std::move(next->data);
+
+                        // ### UNSAFE ###
+                        // 危险！这里是这个实现最不安全的地方。
+                        // 在一个真实的 MPMC 队列中，你不能立即删除 'first' 节点，
+                        // 因为其他线程可能仍然持有指向它的指针。
+                        // 必须使用险象指针等技术来确保安全回收。
+                        delete first;
+
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+};
+
+#endif
+```
+
+#### MPMC 场景的 RingBuffer
+
+可以参考[Facebook的folly库中的MPMCQueue](https://github.com/facebook/folly/blob/main/folly/MPMCQueue.h).
+
+### 参考文章
+
+- [MPMC队列](https://zaynpei.github.io/2025/10/19/lang/CPP/%E9%AB%98%E6%95%88%E7%BB%93%E6%9E%84/MPMC%E9%98%9F%E5%88%97/)
+- [SPSC队列](https://zaynpei.github.io/2025/10/19/lang/CPP/%E9%AB%98%E6%95%88%E7%BB%93%E6%9E%84/SPSC%E9%98%9F%E5%88%97/)

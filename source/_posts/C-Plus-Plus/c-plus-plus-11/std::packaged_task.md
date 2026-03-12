@@ -2,7 +2,7 @@
 title: std::packaged_task
 tags: [C++, 多线程， 并发]
 categories: C++
-date: 2025-08-06
+date: 2025-08-07
 ---
 
 ### std::packaged_task

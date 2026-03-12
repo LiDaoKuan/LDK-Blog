@@ -2,7 +2,7 @@
 title: std::future, std::promise与std::async
 tags: [C++, 多线程, 并发]
 categories: C++
-date: 2025-08-06
+date: 2025-10-06
 ---
 
 ### std::async
